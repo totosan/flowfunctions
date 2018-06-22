@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "flowfiles/{name}",
+      "connection": "everything1_STORAGE"
+    }
+  ],
+  "disabled": false
+}
