@@ -110,7 +110,8 @@ namespace FlowFunctionsTT
                     dataStructs.Add(dataStruct);
                     try
                     {
-                        outputQueue.AddAsync(System.Text.Encoding.Default.GetString(JsonConvert.SerializeObject(dataStruct).Zip()));
+                        if (!string.IsNullOrWhiteSpace(dataStruct.MonthName))
+                            outputQueue.AddAsync(System.Text.Encoding.Default.GetString(JsonConvert.SerializeObject(dataStruct).Zip()));
                     }
                     catch (Exception e)
                     {

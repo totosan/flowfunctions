@@ -82,22 +82,22 @@ namespace FlowFunctionsTT.Models
 
         public static List<Projektprovision> GetProjectDetails(XDocument xmlDoc)
         {
-            var projects = xmlDoc.Descendants().Where(el => el.Name.LocalName == "ProjectName");
+            var projectCollections = xmlDoc.Descendants().Where(el => el.Name.LocalName == "ProjectName_Collection");
 
             var projectDetails = new List<Projektprovision>();
-            foreach (var project in projects)
+            foreach (var projectCollection in projectCollections)
             {
                 var projectdetail = new Projektprovision();
 
-                var projName = project.Descendants()
+                var projName = projectCollection.Descendants()
                     .FirstOrDefault(el => el.HasAttributes && el.FirstAttribute.Name.LocalName == "ProjectName");
                 projectdetail.Projektname = projName?.FirstAttribute.Value;
 
-                var yearCollection = HandleXml.GetByDateDetails(new XDocument(project));
+                var yearCollection = HandleXml.GetByDateDetails(new XDocument(projectCollection));
 
                 projectdetail.Tagesprovisionen = yearCollection;
 
-                var tasks = project.Descendants().Where(el => el.Name.LocalName == "TaskName");
+                var tasks = projectCollection.Descendants().Where(el => el.Name.LocalName == "TaskName");
 
                 projectdetail.Taskprovisionen = new List<Taskprovision>();
 
