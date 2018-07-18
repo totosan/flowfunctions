@@ -34,11 +34,11 @@ namespace FlowFunctionsTT
         {
             _namespaceManager.AddNamespace("dft", "http://www.w3.org/2001/XMLSchema-instance");
 
-            string ttomowPwd = await GetPwdFromKeyVault();
+            string usersPwd = await GetPwdFromKeyVault();
 
             _http = (HttpWebRequest)HttpWebRequest.Create(_uri);
 
-            CredentialCache credCache = SetCredentials(ttomowPwd);
+            CredentialCache credCache = SetCredentials(usersPwd);
 
             _http.Credentials = credCache;
 
