@@ -9,8 +9,7 @@ namespace FlowFunctionsTT.Function.Provision
         [FunctionName("ProvisionToCosmosDB")]
         public static void Run([QueueTrigger("ProjectServerDecomposedQ")]string myQueueItem, TraceWriter log, [DocumentDB("FlowDB", "ProvisionCollection", CreateIfNotExists = true, ConnectionStringSetting = "CosmosDBConnection")] out dynamic document)
         {
-            var unzipped = System.Text.Encoding.Default.GetBytes(myQueueItem).Unzip();
-            document = unzipped;
+            document = myQueueItem;
         }
     }
 }

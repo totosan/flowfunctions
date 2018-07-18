@@ -12,14 +12,13 @@ namespace FlowFunctionsTT
 {
     public static class CockpitToCosmosDb
     {
-  #if !DEBUG
       [FunctionName("CockpitToCosmosDb")]
-        public static void Run([QueueTrigger("ExcelDecomposedQ")] string inputQueueItem, TraceWriter log, [DocumentDB("FlowDB", "CockpitCollection",CreateIfNotExists =true,ConnectionStringSetting = "CosmosDBConnection")] out dynamic document)
+        public static void Run([QueueTrigger("ExcelDecomposedQ")] string inputQueueItem, TraceWriter log, 
+          [DocumentDB("FlowDB", "CockpitCollection",CreateIfNotExists =true,ConnectionStringSetting = "CosmosDBConnection")] out dynamic document)
         {
-            var unzipped = System.Text.Encoding.Default.GetBytes(inputQueueItem).Unzip();
-            var output = (JObject)JsonConvert.DeserializeObject(unzipped);
-            document = output;
+            //var unzipped = System.Text.Encoding.Default.GetBytes(inputQueueItem).Unzip();
+            //var output = JsonConvert.DeserializeObject(inputQueueItem);
+            document = inputQueueItem;
         }
-#endif
     }
 }

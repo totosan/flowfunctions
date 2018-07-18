@@ -10,6 +10,10 @@ namespace FlowFunctionsTT.Models
     {
         public string Displayname { get; set; }
 
+        public string Name { get; set; }
+
+        public string PersonalNummer { get; set; }
+
         public string Provisionssatz { get; set; }
 
         public string Eigenprovision { get; set; }

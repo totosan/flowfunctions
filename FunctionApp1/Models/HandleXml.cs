@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -14,6 +15,7 @@ namespace FlowFunctionsTT.Models
     public class HandleXml
     {
         private static XmlNamespaceManager _namespaceManager = new XmlNamespaceManager(new NameTable());
+        static Regex _rexNameTokenizer = new Regex(@"(\w*)\s+(\w*)\s(\S*)");
 
         public HandleXml()
         {
@@ -49,8 +51,8 @@ namespace FlowFunctionsTT.Models
                     .Where(elem => elem.HasAttributes);
 
                 GetAccountDetails(accountDetail, props);
-                accountDetail.Tagesprovisionen = GetByDateDetails(document);
-                accountDetail.Projektprovisionen = GetProjectDetails(document);
+                accountDetail.Tagesprovisionen = GetByDateDetails(new XDocument(account));
+                accountDetail.Projektprovisionen = GetProjectDetails(new XDocument(account));
                 accountDetails.Add(accountDetail);
             }
 
@@ -62,6 +64,12 @@ namespace FlowFunctionsTT.Models
             accountDetail.Provisionssatz = GetByAttribName(props, "Provisionssatz").FirstOrDefault().Element?.LastAttribute.Value;
 
             accountDetail.Displayname = GetByAttribName(props, "ResourceName").FirstOrDefault().Element?.LastAttribute.Value;
+
+            var nameBuilder = _rexNameTokenizer.Matches(accountDetail.Displayname)[0].Groups[1].Value;
+            nameBuilder += ", " + _rexNameTokenizer.Matches(accountDetail.Displayname)[0].Groups[2].Value;
+            accountDetail.Name = nameBuilder;
+
+            accountDetail.PersonalNummer = _rexNameTokenizer.Matches(accountDetail.Displayname)[0].Groups[3].Value.Trim('(').Trim(')');
 
             accountDetail.Eigenprovision = GetByAttribName(props, "ProjektundBonusProvision")
                 .OrderBy(elem => elem.DistanceFromRoot)
@@ -82,7 +90,7 @@ namespace FlowFunctionsTT.Models
 
         public static List<Projektprovision> GetProjectDetails(XDocument xmlDoc)
         {
-            var projectCollections = xmlDoc.Descendants().Where(el => el.Name.LocalName == "ProjectName_Collection");
+            var projectCollections = xmlDoc.Descendants().Where(el => el.Name.LocalName == "ProjectName");
 
             var projectDetails = new List<Projektprovision>();
             foreach (var projectCollection in projectCollections)
@@ -95,7 +103,7 @@ namespace FlowFunctionsTT.Models
 
                 var yearCollection = HandleXml.GetByDateDetails(new XDocument(projectCollection));
 
-                projectdetail.Tagesprovisionen = yearCollection;
+                // projectdetail.Tagesprovisionen = yearCollection;
 
                 var tasks = projectCollection.Descendants().Where(el => el.Name.LocalName == "TaskName");
 

@@ -22,7 +22,6 @@ namespace FlowFunctionsTT
             [BlobTrigger("flowfiles/{name}")] Stream myBlob, string name, TraceWriter log,
             [Queue("ExcelDecomposedQ", Connection = "")] IAsyncCollector<string> outputQueue)
         {
-#if !DEBUG
             log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes");
 
             var runId = Guid.NewGuid();
@@ -111,7 +110,7 @@ namespace FlowFunctionsTT
                     try
                     {
                         if (!string.IsNullOrWhiteSpace(dataStruct.MonthName))
-                            outputQueue.AddAsync(System.Text.Encoding.Default.GetString(JsonConvert.SerializeObject(dataStruct).Zip()));
+                            outputQueue.AddAsync(JsonConvert.SerializeObject(dataStruct));
                     }
                     catch (Exception e)
                     {
@@ -122,7 +121,6 @@ namespace FlowFunctionsTT
 
             }
 
-#endif
         }
 
         private static string GetCellValue(TraceWriter log, SharedStringTable sst, Cell cell)

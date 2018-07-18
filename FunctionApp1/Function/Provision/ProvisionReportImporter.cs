@@ -63,7 +63,7 @@ namespace FlowFunctionsTT
                     {
                         var accountDetails = HandleXml.GetStrippedAccountDetails(xml);
                         var jsonData = JsonConvert.SerializeObject(new {AccountDetails = accountDetails, TimeStamp=DateTime.UtcNow});
-                        await outputQueue.AddAsync(System.Text.Encoding.Default.GetString(jsonData.Zip()));
+                        await outputQueue.AddAsync(jsonData);
                     }
                     catch (Exception ex)
                     {
