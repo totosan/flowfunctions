@@ -9,10 +9,8 @@ namespace FlowFunctionsTT.Function.Provision
     public static class ProvisionToCosmosDB
     {
         [FunctionName("ProvisionToCosmosDB")]
-        public static void Run([EventHubTrigger("floweventhubinstance", Connection = "EventhubConnection")]
-            EventData myQueueItem, TraceWriter log,
-            [DocumentDB("FlowDB", "ProvisionCollection", CreateIfNotExists = true,
-                ConnectionStringSetting = "CosmosDBConnection")]
+        public static void Run([EventHubTrigger("floweventhubinstance", Connection = "EventhubConnection")] EventData myQueueItem, TraceWriter log,
+            [DocumentDB("FlowDB", "ProvisionCollection", CreateIfNotExists = true, ConnectionStringSetting = "CosmosDBConnection")]
             out dynamic document)
         {
             if (myQueueItem.PartitionKey == "provision")

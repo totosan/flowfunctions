@@ -38,7 +38,8 @@ namespace FlowFunctionsTT
 
             string usersPwd = await GetPwdFromKeyVault();
 
-            var currentTime = DateTime.UtcNow.AddMonths(-1);
+            int backwardsMonthCount = 0;
+            var currentTime = DateTime.UtcNow.AddMonths(backwardsMonthCount);
 
             var uri = new Uri(string.Format(_uriTemplate, (currentTime.Month), "01", currentTime.Year,
                 DateTime.DaysInMonth(currentTime.Year, (currentTime.Month))));

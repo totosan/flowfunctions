@@ -14,8 +14,8 @@ namespace FlowFunctionsTT
 {
     public static class CockpitToCosmosDb
     {
-      [FunctionName("CockpitToCosmosDb")]
-        public static void Run([EventHubTrigger("floweventhubinstance",Connection = "EventhubConnection")] EventData eventMessage, TraceWriter log, 
+        [FunctionName("CockpitToCosmosDb")]
+        public static void Run([EventHubTrigger("floweventhubinstance",Connection = "EventhubConnection", ConsumerGroup = "second")] EventData eventMessage, TraceWriter log, 
           [DocumentDB("FlowDB", "CockpitCollection",CreateIfNotExists =true,ConnectionStringSetting = "CosmosDBConnection")] out dynamic document)
         {
             if (eventMessage.PartitionKey == "cockpit")

@@ -73,18 +73,18 @@ namespace FlowFunctionsTT.Models
 
             accountDetail.Eigenprovision = GetByAttribName(props, "ProjektundBonusProvision")
                 .OrderBy(elem => elem.DistanceFromRoot)
-                .FirstOrDefault()
+                .FirstOrDefault()?
                 .Element?.LastAttribute.Value;
 
             accountDetail.Teamprovision = GetByAttribName(props, "Textbox")
                 .OrderBy(elem => elem.DistanceFromRoot)
-                .FirstOrDefault()
+                .FirstOrDefault()?
                 .Element?.LastAttribute.Value;
 
             accountDetail.Gesamtprovision = GetByAttribName(props, "Textbox")
                 .OrderBy(elem => elem.DistanceFromRoot)
                 .Skip(1)
-                .FirstOrDefault()
+                .FirstOrDefault()?
                 .Element?.LastAttribute.Value;
         }
 
