@@ -7,10 +7,13 @@ using System.Net;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.WebJobs.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 
 namespace FlowFunctionsTT
@@ -18,9 +21,9 @@ namespace FlowFunctionsTT
     public static class CockpitFileImporter
     {
         [FunctionName("CockpitFileImporter")]
-        public static void Run(
+        public static async Task Run(
             [BlobTrigger("flowfiles/{name}")] Stream myBlob, string name, TraceWriter log,
-            [Queue("ExcelDecomposedQ", Connection = "")] IAsyncCollector<string> outputQueue)
+            [EventHub("floweventhubinstance", Connection = "EventhubConnection")] IAsyncCollector<EventData> outputQueue)
         {
             log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes");
 
@@ -109,8 +112,7 @@ namespace FlowFunctionsTT
                     dataStructs.Add(dataStruct);
                     try
                     {
-                        if (!string.IsNullOrWhiteSpace(dataStruct.MonthName))
-                            outputQueue.AddAsync(JsonConvert.SerializeObject(dataStruct));
+                        await SendMessageAsync(outputQueue, dataStruct);
                     }
                     catch (Exception e)
                     {
@@ -121,6 +123,14 @@ namespace FlowFunctionsTT
 
             }
 
+        }
+
+        private static async Task SendMessageAsync(IAsyncCollector<EventData> outputQueue, DataStruct dataStruct)
+        {
+            var eventBody = JsonConvert.SerializeObject(dataStruct);
+            var eventData = new EventData(System.Text.Encoding.Default.GetBytes(eventBody));
+            eventData.PartitionKey = "cockpit";
+            await outputQueue.AddAsync(eventData);
         }
 
         private static string GetCellValue(TraceWriter log, SharedStringTable sst, Cell cell)

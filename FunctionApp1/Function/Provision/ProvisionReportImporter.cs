@@ -14,6 +14,8 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.WebJobs.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -30,14 +32,16 @@ namespace FlowFunctionsTT
         [FunctionName("ProvisionReportDownload")]
         public static async Task Run(
             [BlobTrigger("flowfiles/{name}")]Stream myBlob, string name, TraceWriter log,
-            [Queue("ProjectServerDecomposedQ")] IAsyncCollector<string> outputQueue)
+            [EventHub("floweventhubinstance", Connection = "EventhubConnection")] IAsyncCollector<EventData> outputQueue)
         {
             _namespaceManager.AddNamespace("dft", "http://www.w3.org/2001/XMLSchema-instance");
 
             string usersPwd = await GetPwdFromKeyVault();
 
-            var uri = new Uri(string.Format(_uriTemplate, DateTime.Now.Month, "01", DateTime.Now.Year,
-                DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)));
+            var currentTime = DateTime.UtcNow.AddMonths(-1);
+
+            var uri = new Uri(string.Format(_uriTemplate, (currentTime.Month), "01", currentTime.Year,
+                DateTime.DaysInMonth(currentTime.Year, (currentTime.Month))));
             _http = (HttpWebRequest)HttpWebRequest.Create(uri);
 
             CredentialCache credCache = SetCredentials(usersPwd);
@@ -64,8 +68,10 @@ namespace FlowFunctionsTT
                     try
                     {
                         var accountDetails = HandleXml.GetStrippedAccountDetails(xml);
-                        var jsonData = JsonConvert.SerializeObject(new {AccountDetails = accountDetails, TimeStamp=DateTime.UtcNow});
-                        await outputQueue.AddAsync(jsonData);
+                        var jsonData = JsonConvert.SerializeObject(new { AccountDetails = accountDetails, TimeStamp = currentTime });
+                        var eventMessage = new EventData(System.Text.Encoding.Default.GetBytes(jsonData));
+                        eventMessage.PartitionKey = "provision";
+                        await outputQueue.AddAsync(eventMessage);
                     }
                     catch (Exception ex)
                     {
@@ -95,3 +101,4 @@ namespace FlowFunctionsTT
         }
     }
 }
+
